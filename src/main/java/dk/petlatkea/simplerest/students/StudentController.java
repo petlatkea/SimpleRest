@@ -1,11 +1,9 @@
 package dk.petlatkea.simplerest.students;
 
-import dk.kea.sprungboat.framework.RestController;
-
 import java.util.List;
 import java.util.Optional;
 
-public class StudentController implements RestController {
+public class StudentController {
 
   private final StudentRepository studentRepository;
 
