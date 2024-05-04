@@ -40,7 +40,7 @@ public class CourseControllerWrapper implements Controller {
 
   public void getCourses(RequestObject req, ResponseObject res) {
     List<Course> courses = courseController.getCourses();
-    String json = convertListOfCoursesToJson(courses);
+    String json = JSONSerializer.toJSON(courses);
     res.sendJson(json);
   }
 
@@ -51,7 +51,7 @@ public class CourseControllerWrapper implements Controller {
 
     // if course exists - return it as json - otherwise return 404
     if(course.isPresent()) {
-      String json = JSONSerializer.convertObjectToJson(course.get());
+      String json = JSONSerializer.toJSON(course.get());
       res.sendJson(json);
     } else {
       res.sendNotFound();
@@ -62,7 +62,7 @@ public class CourseControllerWrapper implements Controller {
     String body = req.getJsonBody();
     Course course = createCourseFromJson(body);
     Course newCourse = courseController.createCourse(course);
-    String jsonResponse = JSONSerializer.convertObjectToJson(newCourse);
+    String jsonResponse = JSONSerializer.toJSON(newCourse);
     res.sendJson(jsonResponse);
   }
 
@@ -73,7 +73,7 @@ public class CourseControllerWrapper implements Controller {
 
     // if course exists - return it as json - otherwise return 404
     if(course.isPresent()) {
-      String json = JSONSerializer.convertObjectToJson(course.get());
+      String json = JSONSerializer.toJSON(course.get());
       res.sendJson(json);
     } else {
       res.sendNotFound();
@@ -81,12 +81,6 @@ public class CourseControllerWrapper implements Controller {
   }
 
   //#region JSON conversion methods
-
-  // Conversion TO JSON - serialization
-  private String convertListOfCoursesToJson(List<Course> courses) {
-    JSONSerializer jsonSerializer = new JSONSerializer();
-    return jsonSerializer.convertListToJson(courses);
-  }
 
   // Conversion FROM JSON - deserialization
 
