@@ -1,9 +1,11 @@
 package dk.petlatkea.simplerest.courses;
 
 import dk.petlatkea.simplerest.framework.Controller;
-import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.annotations.DeleteMapping;
+import dk.petlatkea.simplerest.framework.annotations.GetMapping;
+import dk.petlatkea.simplerest.framework.annotations.PostMapping;
 import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
@@ -32,19 +34,14 @@ public class CourseControllerWrapper implements Controller {
     return "/courses";
   }
 
-  public void registerRoutes(GenericController genericController) {
-    genericController.registerRoute("GET", "/courses", this::getCourses);
-    genericController.registerRoute("GET", "/courses/{id}", this::getCourse);
-    genericController.registerRoute("POST", "/courses", this::createCourse);
-    genericController.registerRoute("DELETE", "/courses/{id}", this::deleteCourse);
-  }
-
+  @GetMapping("/courses")
   public void getCourses(RequestObject req, ResponseObject res) {
     List<Course> courses = courseController.getCourses();
     String json = JSONSerializer.toJSON(courses);
     res.sendJson(json);
   }
 
+  @GetMapping("/courses/{id}")
   public void getCourse(RequestObject req, ResponseObject res) {
     // Find the course with the given id
     int id = req.getPathVariable_id();
@@ -59,6 +56,7 @@ public class CourseControllerWrapper implements Controller {
     }
   }
 
+  @PostMapping("/courses")
   public void createCourse(RequestObject req, ResponseObject res) {
     String json = req.getJsonBody();
     Course course = (Course) JSONDeserializer.fromJSON(Course.class,json);
@@ -67,6 +65,7 @@ public class CourseControllerWrapper implements Controller {
     res.sendJson(jsonResponse);
   }
 
+  @DeleteMapping("/courses/{id}")
   public void deleteCourse(RequestObject req, ResponseObject res) {
     // find - and delete - the course with the given id
     int id = req.getPathVariable_id();

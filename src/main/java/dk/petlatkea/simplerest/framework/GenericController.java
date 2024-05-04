@@ -2,7 +2,9 @@ package dk.petlatkea.simplerest.framework;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dk.petlatkea.simplerest.framework.annotations.DeleteMapping;
 import dk.petlatkea.simplerest.framework.annotations.GetMapping;
+import dk.petlatkea.simplerest.framework.annotations.PostMapping;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,12 +31,9 @@ public class GenericController implements HttpHandler {
     this.basePath = controller.getBasePath();
 
     registerRouteAnnotations(controller);
-
-    // TODO: Get rid of this when all annotations work
-    controller.registerRoutes(this);
   }
 
-  public void registerRoute(String method, String path, RequestHandler handler) {
+  private void registerRoute(String method, String path, RequestHandler handler) {
     routes.put(method.toUpperCase() + path, handler);
   }
 
@@ -44,7 +43,44 @@ public class GenericController implements HttpHandler {
     // If it does - register the route
     for(Method method : controller.getClass().getDeclaredMethods()) {
       if(method.isAnnotationPresent(GetMapping.class)) {
-        registerRoute("GET", basePath, (req, res) -> {
+        GetMapping annotation = method.getAnnotation(GetMapping.class);
+        String path = annotation.value();
+        if(path == null ) {
+          path = basePath;
+        }
+
+        registerRoute("GET", path, (req, res) -> {
+          try {
+            method.invoke(controller,req,res);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+
+      } else if(method.isAnnotationPresent(PostMapping.class)) {
+        PostMapping annotation = method.getAnnotation(PostMapping.class);
+        String path = annotation.value();
+        if(path == null ) {
+          path = basePath;
+        }
+
+        registerRoute("POST", path, (req, res) -> {
+          try {
+            method.invoke(controller,req,res);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+
+      } else if(method.isAnnotationPresent(DeleteMapping.class)) {
+        DeleteMapping annotation = method.getAnnotation(DeleteMapping.class);
+
+        String path = annotation.value();
+        if(path == null ) {
+          path = basePath;
+        }
+
+        registerRoute("DELETE", path, (req, res) -> {
           try {
             method.invoke(controller,req,res);
           } catch (Exception e) {
@@ -54,6 +90,7 @@ public class GenericController implements HttpHandler {
 
       }
     }
+
 
   }
 

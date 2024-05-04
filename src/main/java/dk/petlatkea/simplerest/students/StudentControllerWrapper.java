@@ -1,14 +1,14 @@
 package dk.petlatkea.simplerest.students;
 
 import dk.petlatkea.simplerest.framework.Controller;
-import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.annotations.DeleteMapping;
 import dk.petlatkea.simplerest.framework.annotations.GetMapping;
+import dk.petlatkea.simplerest.framework.annotations.PostMapping;
 import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,23 +32,16 @@ public class StudentControllerWrapper implements Controller {
     return "/students";
   }
 
-  public void registerRoutes(GenericController genericController) {
-    // GET /students
-    //genericController.registerRoute("GET", "/students", this::getStudents);
-    genericController.registerRoute("GET", "/students/{id}", this::getStudent);
-    genericController.registerRoute("POST", "/students", this::createStudent);
-    genericController.registerRoute("DELETE", "/students/{id}", this::deleteStudent);
-  }
-
   // Request handlers - wraps the StudentController methods
 
-  @GetMapping
+  @GetMapping("/students")
   public void getStudents(RequestObject req, ResponseObject res) {
     List<Student> students = studentController.getStudents();
     String json = JSONSerializer.toJSON(students);
     res.sendJson(json);
   }
 
+  @GetMapping("/students/{id}")
   public void getStudent(RequestObject req, ResponseObject res) {
     // Find the student with the given id
     int id = req.getPathVariable_id();
@@ -63,6 +56,7 @@ public class StudentControllerWrapper implements Controller {
     }
   }
 
+  @PostMapping("/students")
   public void createStudent(RequestObject req, ResponseObject res) {
     // Get the json body from the request
     String json = req.getJsonBody();
@@ -73,6 +67,7 @@ public class StudentControllerWrapper implements Controller {
     res.sendJson(jsonResponse);
   }
 
+  @DeleteMapping("/students/{id}")
   public void deleteStudent(RequestObject req, ResponseObject res) {
     // find - and delete - the student with the given id
     int id = req.getPathVariable_id();
