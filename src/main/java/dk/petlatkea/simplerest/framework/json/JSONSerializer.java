@@ -28,7 +28,7 @@ public class JSONSerializer {
     return json.toString();
   }
 
-  public String convertObjectToJson(Object object) {
+  public static String convertObjectToJson(Object object) {
     StringBuilder json = new StringBuilder("{");
 
     try {
@@ -56,7 +56,7 @@ public class JSONSerializer {
     return json.toString();
   }
 
-  private String getJSONValue(String key, Object value) {
+  private static String getJSONValue(String key, Object value) {
     StringBuilder jsonLine = new StringBuilder();
     // add the property-name
     jsonLine.append("\"").append(key).append("\": ");

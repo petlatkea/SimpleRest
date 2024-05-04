@@ -53,7 +53,7 @@ public class StudentControllerWrapper implements Controller {
 
     // if student exists - return it as json - otherwise return 404
     if(student.isPresent()) {
-      String json = convertStudentToJson(student.get());
+      String json = JSONSerializer.convertObjectToJson(student.get());
       res.sendJson(json);
     } else {
       res.sendNotFound();
@@ -66,7 +66,7 @@ public class StudentControllerWrapper implements Controller {
 
     Student student = createStudentFromJson(json);
     Student createdStudent = studentController.createStudent(student);
-    String jsonResponse = convertStudentToJson(createdStudent);
+    String jsonResponse = JSONSerializer.convertObjectToJson(createdStudent);
     res.sendJson(jsonResponse);
   }
 
@@ -77,7 +77,7 @@ public class StudentControllerWrapper implements Controller {
 
     // if student exists - return it as json - otherwise return 404
     if(student.isPresent()) {
-      String json = convertStudentToJson(student.get());
+      String json = JSONSerializer.convertObjectToJson(student.get());
       res.sendJson(json);
     } else {
       res.sendNotFound();
@@ -90,11 +90,6 @@ public class StudentControllerWrapper implements Controller {
   private String convertListOfStudentsToJson(List<Student> students) {
     JSONSerializer jsonSerializer = new JSONSerializer();
     return jsonSerializer.convertListToJson(students);
-  }
-
-  private String convertStudentToJson(Student student) {
-    JSONSerializer jsonSerializer = new JSONSerializer();
-    return jsonSerializer.convertObjectToJson(student);
   }
 
   // Conversion FROM JSON - deserialization
