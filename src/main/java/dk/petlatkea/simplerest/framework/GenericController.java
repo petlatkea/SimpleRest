@@ -20,13 +20,19 @@ import java.util.Map;
 public class GenericController implements HttpHandler {
 
   private final Map<String, RequestHandler> routes = new HashMap<>();
+  private String basePath;
 
   public GenericController(Controller controller) {
     controller.registerRoutes(this);
+    this.basePath = controller.getBasePath();
   }
 
   public void registerRoute(String method, String path, RequestHandler handler) {
     routes.put(method.toUpperCase() + path, handler);
+  }
+
+  public String getBasePath() {
+    return basePath;
   }
 
   @Override

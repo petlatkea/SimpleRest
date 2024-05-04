@@ -24,6 +24,11 @@ public class StudentControllerWrapper implements Controller {
     this.studentController = studentController;
   }
 
+  @Override
+  public String getBasePath() {
+    return "/students";
+  }
+
   public void registerRoutes(GenericController genericController) {
     // GET /students
     genericController.registerRoute("GET", "/students", this::getStudents);
