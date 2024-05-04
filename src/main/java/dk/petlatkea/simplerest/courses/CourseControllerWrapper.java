@@ -4,6 +4,7 @@ import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.util.List;
 import java.util.Optional;
@@ -95,16 +96,8 @@ public class CourseControllerWrapper implements Controller {
   }
 
   private String convertCourseToJson(Course course) {
-    String jsonString = """
-    {
-      "id": %d,
-      "name": "%s",
-      "abbreviation": "%s",
-      "teacher": "%s",
-      "schoolYear": %d
-    }
-    """;
-    return String.format(jsonString, course.getId(), course.getName(), course.getAbbreviation(), course.getTeacher(), course.getSchoolYear());
+    JSONSerializer jsonSerializer = new JSONSerializer();
+    return jsonSerializer.convertObjectToJson(course);
   }
 
   // Conversion FROM JSON - deserialization
