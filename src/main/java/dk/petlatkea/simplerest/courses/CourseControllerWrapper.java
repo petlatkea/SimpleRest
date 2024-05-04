@@ -84,15 +84,8 @@ public class CourseControllerWrapper implements Controller {
 
   // Conversion TO JSON - serialization
   private String convertListOfCoursesToJson(List<Course> courses) {
-    StringBuilder json = new StringBuilder("[");
-    for(int i=0; i < courses.size(); i++) {
-      json.append(convertCourseToJson(courses.get(i)));
-      if(i < courses.size() - 1) {
-        json.append(",");
-      }
-    }
-    json.append("]");
-    return json.toString();
+    JSONSerializer jsonSerializer = new JSONSerializer();
+    return jsonSerializer.convertListToJson(courses);
   }
 
   private String convertCourseToJson(Course course) {

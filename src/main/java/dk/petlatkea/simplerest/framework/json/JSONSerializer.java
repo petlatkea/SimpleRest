@@ -1,15 +1,12 @@
 package dk.petlatkea.simplerest.framework.json;
 
-import dk.petlatkea.simplerest.students.Student;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.util.List;
 
 /**
  * The JSONSerializer creates JSON from objects.
@@ -17,6 +14,19 @@ import java.time.LocalDate;
  *
  */
 public class JSONSerializer {
+
+  public String convertListToJson(List<?> list) {
+    StringBuilder json = new StringBuilder("[");
+    for(int i = 0; i < list.size(); i++) {
+      Object object = list.get(i);
+      json.append(convertObjectToJson(object));
+      if(i < list.size() - 1) {
+        json.append(", ");
+      }
+    }
+    json.append("]");
+    return json.toString();
+  }
 
   public String convertObjectToJson(Object object) {
     StringBuilder json = new StringBuilder("{");

@@ -88,15 +88,8 @@ public class StudentControllerWrapper implements Controller {
 
   // Conversion TO JSON - serialization
   private String convertListOfStudentsToJson(List<Student> students) {
-    StringBuilder json = new StringBuilder("[");
-    for(int i=0; i < students.size(); i++) {
-      json.append(convertStudentToJson(students.get(i)));
-      if(i < students.size() - 1) {
-        json.append(",");
-      }
-    }
-    json.append("]");
-    return json.toString();
+    JSONSerializer jsonSerializer = new JSONSerializer();
+    return jsonSerializer.convertListToJson(students);
   }
 
   private String convertStudentToJson(Student student) {
