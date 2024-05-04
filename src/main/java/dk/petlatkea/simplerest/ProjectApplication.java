@@ -3,8 +3,10 @@ package dk.petlatkea.simplerest;
 import dk.petlatkea.simplerest.config.InitData;
 import dk.petlatkea.simplerest.courses.CourseController;
 import dk.petlatkea.simplerest.courses.CourseRepository;
-import dk.petlatkea.simplerest.students.SimpleServer;
+import dk.petlatkea.simplerest.framework.GenericController;
+import dk.petlatkea.simplerest.framework.GenericServer;
 import dk.petlatkea.simplerest.students.StudentController;
+import dk.petlatkea.simplerest.students.StudentControllerWrapper;
 import dk.petlatkea.simplerest.students.StudentRepository;
 
 import java.io.IOException;
@@ -22,9 +24,13 @@ public class ProjectApplication {
     InitData initData = new InitData(studentRepository, courseRepository);
     initData.run();
 
+    // Create the actual controller - both the Wrapper and the GenericController using that wrapper
+    StudentControllerWrapper studentControllerWrapper = new StudentControllerWrapper(studentController);
+    GenericController controller = new GenericController(studentControllerWrapper);
+
     // Create and start server - with controller
-    SimpleServer simpleServer = new SimpleServer();
-    simpleServer.setController(studentController);
+    GenericServer simpleServer = new GenericServer();
+    simpleServer.setController(controller);
     simpleServer.start();
   }
 }

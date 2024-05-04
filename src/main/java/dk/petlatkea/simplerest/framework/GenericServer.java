@@ -1,23 +1,23 @@
-package dk.petlatkea.simplerest.students;
+package dk.petlatkea.simplerest.framework;
 
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class SimpleServer {
+public class GenericServer {
   private static final int PORT = 8080;
 
-  private StudentController studentController;
+  private GenericController controller;
 
-  public void setController(StudentController studentController) {
-    this.studentController = studentController;
+  public void setController(GenericController controller) {
+    this.controller = controller;
   }
 
   public void start() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-    server.createContext("/students", new SimpleController(this.studentController));
+    server.createContext("/", controller); // TODO: Register controller and make that register routes ...
 
     server.start();
 
