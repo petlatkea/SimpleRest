@@ -65,7 +65,7 @@ public class StudentControllerWrapper implements Controller {
     // Get the json body from the request
     String json = req.getJsonBody();
 
-    Student student = (Student)JSONDeserializer.fromJSON(json);
+    Student student = (Student)JSONDeserializer.fromJSON(Student.class, json);
     Student createdStudent = studentController.createStudent(student);
     String jsonResponse = JSONSerializer.toJSON(createdStudent);
     res.sendJson(jsonResponse);

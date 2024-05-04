@@ -4,6 +4,7 @@ import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.util.List;
@@ -59,8 +60,8 @@ public class CourseControllerWrapper implements Controller {
   }
 
   public void createCourse(RequestObject req, ResponseObject res) {
-    String body = req.getJsonBody();
-    Course course = createCourseFromJson(body);
+    String json = req.getJsonBody();
+    Course course = (Course) JSONDeserializer.fromJSON(Course.class,json);
     Course newCourse = courseController.createCourse(course);
     String jsonResponse = JSONSerializer.toJSON(newCourse);
     res.sendJson(jsonResponse);
@@ -80,60 +81,4 @@ public class CourseControllerWrapper implements Controller {
     }
   }
 
-  //#region JSON conversion methods
-
-  // Conversion FROM JSON - deserialization
-
-  private Course createCourseFromJson(String json) {
-    String id = getJsonValue(json, "id");
-    String name = getJsonString(json, "name");
-    String abbreviation = getJsonString(json, "abbreviation");
-    String teacher = getJsonString(json, "teacher");
-    String schoolYear = getJsonValue(json, "schoolYear");
-
-    Course course = new Course();
-    if(id != null) {
-      course.setId(Integer.parseInt(id));
-    }
-    if(name != null) {
-      course.setName(name);
-    }
-    if(abbreviation != null) {
-      course.setAbbreviation(abbreviation);
-    }
-    if(teacher != null) {
-      course.setTeacher(teacher);
-    }
-    if(schoolYear != null) {
-      course.setSchoolYear(Integer.parseInt(schoolYear));
-    }
-
-    return course;
-  }
-
-  // Helper methods for JSON parsing
-
-  private String getJsonString(String json, String key) {
-    String value = getJsonValue(json, key);
-    if(value == null) {
-      return null;
-    } else {
-      return value.substring(1, value.length()-1);
-    }
-  }
-
-  private String getJsonValue(String json, String key) {
-    int beginIndex = json.indexOf("\""+key+"\":");
-    if( beginIndex == -1) {
-      return null;
-    }
-    beginIndex += 3 + key.length();
-    int endIndex = json.indexOf(",", beginIndex);
-    if(endIndex == -1) {
-      endIndex = json.indexOf("}", beginIndex);
-    }
-    return json.substring(beginIndex, endIndex).trim();
-  }
-
-  //#endregion JSON conversion methods
 }

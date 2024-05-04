@@ -8,26 +8,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 
-import dk.petlatkea.simplerest.students.Student;
+
 
 public class JSONDeserializer {
 
-  public static Object fromJSON(String json) {
+  // Create a new object of the given class from the given json
+  public static Object fromJSON(Class clazz, String json) {
     JSONDeserializer deserializer = new JSONDeserializer();
-    return deserializer.getObjectFromJson(json);
+    return deserializer.getObjectFromJson(clazz, json);
   }
 
-  private Object getObjectFromJson(String json) {
-    // Create object of type
-    // HARDCODED FOR STUDENTS!!!
-    Student object = new Student();
+  private Object getObjectFromJson(Class clazz, String json) {
 
-    // Find properties of class (TODO: Find class from somewhere!)
     try {
-      BeanInfo beanInfo = Introspector.getBeanInfo(Student.class, Object.class);
-      PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
-      for (PropertyDescriptor descriptor : descriptors) {
+      // Create object of type clazz
+      Object object = clazz.getDeclaredConstructor().newInstance();
 
+      // Find the expected properties of that kind of object
+      BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);
+      PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
+
+      for (PropertyDescriptor descriptor : descriptors) {
         // find the property-name
         String propertyName = descriptor.getName();
         // Check if the property is in the json - ignore it otherwise
@@ -42,7 +43,7 @@ public class JSONDeserializer {
             setter.invoke(object, (Object) null);
           } else if (type == String.class) {
             setter.invoke(object, getJsonString(json, propertyName));
-          } else if (type == int.class) {
+          } else if (type == int.class || type == Integer.class) {
             setter.invoke(object, getJsonInteger(json, propertyName));
           } else if (type == LocalDate.class) {
             // property is never null - we know that it exists!
@@ -52,12 +53,13 @@ public class JSONDeserializer {
 
         }
       }
-    } catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
+
+      // When all properties are set - return the object
+      return object;
+    } catch (IntrospectionException | IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
       System.err.println(e);
       throw new RuntimeException(e);
     }
-
-    return object;
   }
 
   private boolean hasJsonProperty(String json, String key) {
