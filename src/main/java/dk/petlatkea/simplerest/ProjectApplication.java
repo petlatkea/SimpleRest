@@ -25,12 +25,14 @@ public class ProjectApplication {
     InitData initData = new InitData(studentRepository, courseRepository);
     initData.run();
 
-    // Create the controller wrapper to be given to the generic controller
+    // Create the controller wrappers to be given to the generic controller
     StudentControllerWrapper studentControllerWrapper = new StudentControllerWrapper(studentController);
+    CourseControllerWrapper courseControllerWrapper = new CourseControllerWrapper(courseController);
 
     // Create server - add controllers - and start
     GenericServer genericServer = new GenericServer();
     genericServer.addController(new GenericController(studentControllerWrapper));
+    genericServer.addController(new GenericController(courseControllerWrapper));
     genericServer.start();
   }
 }

@@ -1,8 +1,5 @@
 package dk.petlatkea.simplerest.courses;
 
-import dk.petlatkea.simplerest.students.Student;
-import dk.petlatkea.simplerest.students.StudentRepository;
-
 import java.util.List;
 import java.util.Optional;
 
