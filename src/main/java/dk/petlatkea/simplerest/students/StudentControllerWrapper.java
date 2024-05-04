@@ -4,6 +4,7 @@ import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.time.LocalDate;
@@ -64,7 +65,7 @@ public class StudentControllerWrapper implements Controller {
     // Get the json body from the request
     String json = req.getJsonBody();
 
-    Student student = createStudentFromJson(json);
+    Student student = (Student)JSONDeserializer.fromJSON(json);
     Student createdStudent = studentController.createStudent(student);
     String jsonResponse = JSONSerializer.toJSON(createdStudent);
     res.sendJson(jsonResponse);
@@ -83,60 +84,5 @@ public class StudentControllerWrapper implements Controller {
       res.sendNotFound();
     }
   }
-
-  //#region JSON conversion methods
-
-  // Conversion FROM JSON - deserialization
-
-  private Student createStudentFromJson(String json) {
-    // Parse JSON and create Student object
-    // search for the string "id": and get the number after it
-    String id = getJsonValue(json, "id");
-    String name = getJsonString(json, "name");
-    String email = getJsonString(json, "email");
-    String birthday = getJsonString(json, "birthday");
-
-    Student student = new Student();
-    if(id != null) {
-      student.setId(Integer.parseInt(id));
-    }
-    if(name != null) {
-      student.setName(name);
-    }
-    if(email != null) {
-      student.setEmail(email);
-    }
-    if(birthday != null) {
-      student.setBirthday(LocalDate.parse(birthday));
-    }
-
-    return student;
-  }
-
-  // Helper methods for JSON parsing
-
-  private String getJsonString(String json, String key) {
-    String value = getJsonValue(json, key);
-    if(value == null) {
-      return null;
-    } else {
-      return value.substring(1, value.length()-1);
-    }
-  }
-
-  private String getJsonValue(String json, String key) {
-    int beginIndex = json.indexOf("\""+key+"\":");
-    if( beginIndex == -1) {
-      return null;
-    }
-    beginIndex += 3 + key.length();
-    int endIndex = json.indexOf(",", beginIndex);
-    if(endIndex == -1) {
-      endIndex = json.indexOf("}", beginIndex);
-    }
-    return json.substring(beginIndex, endIndex).trim();
-  }
-
-  //#endregion JSON conversion methods
 
 }
