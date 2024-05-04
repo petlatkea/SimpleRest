@@ -2,8 +2,11 @@ package dk.petlatkea.simplerest.framework;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dk.petlatkea.simplerest.framework.annotations.GetMapping;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +26,35 @@ public class GenericController implements HttpHandler {
   private String basePath;
 
   public GenericController(Controller controller) {
-    controller.registerRoutes(this);
     this.basePath = controller.getBasePath();
+
+    registerRouteAnnotations(controller);
+
+    // TODO: Get rid of this when all annotations work
+    controller.registerRoutes(this);
   }
 
   public void registerRoute(String method, String path, RequestHandler handler) {
     routes.put(method.toUpperCase() + path, handler);
+  }
+
+  private void registerRouteAnnotations(Controller controller) {
+    // Get all methods from the controller
+    // For each method - check if it has a GetMapping annotation
+    // If it does - register the route
+    for(Method method : controller.getClass().getDeclaredMethods()) {
+      if(method.isAnnotationPresent(GetMapping.class)) {
+        registerRoute("GET", basePath, (req, res) -> {
+          try {
+            method.invoke(controller,req,res);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+
+      }
+    }
+
   }
 
   public String getBasePath() {

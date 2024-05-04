@@ -4,6 +4,7 @@ import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.annotations.GetMapping;
 import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
@@ -33,7 +34,7 @@ public class StudentControllerWrapper implements Controller {
 
   public void registerRoutes(GenericController genericController) {
     // GET /students
-    genericController.registerRoute("GET", "/students", this::getStudents);
+    //genericController.registerRoute("GET", "/students", this::getStudents);
     genericController.registerRoute("GET", "/students/{id}", this::getStudent);
     genericController.registerRoute("POST", "/students", this::createStudent);
     genericController.registerRoute("DELETE", "/students/{id}", this::deleteStudent);
@@ -41,6 +42,7 @@ public class StudentControllerWrapper implements Controller {
 
   // Request handlers - wraps the StudentController methods
 
+  @GetMapping
   public void getStudents(RequestObject req, ResponseObject res) {
     List<Student> students = studentController.getStudents();
     String json = JSONSerializer.toJSON(students);
