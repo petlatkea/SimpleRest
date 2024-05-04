@@ -4,6 +4,7 @@ import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.RequestObject;
 import dk.petlatkea.simplerest.framework.ResponseObject;
+import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -99,15 +100,8 @@ public class StudentControllerWrapper implements Controller {
   }
 
   private String convertStudentToJson(Student student) {
-    String jsonString = """
-    {
-      "id": %d,
-      "name": "%s",
-      "email": "%s",
-      "birthday": "%s"
-    }
-    """;
-    return String.format(jsonString, student.getId(), student.getName(), student.getEmail(), student.getBirthday());
+    JSONSerializer jsonSerializer = new JSONSerializer();
+    return jsonSerializer.convertObjectToJson(student);
   }
 
   // Conversion FROM JSON - deserialization
