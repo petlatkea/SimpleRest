@@ -2,9 +2,8 @@ package dk.petlatkea.simplerest.framework;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import dk.petlatkea.simplerest.framework.annotations.DeleteMapping;
-import dk.petlatkea.simplerest.framework.annotations.GetMapping;
-import dk.petlatkea.simplerest.framework.annotations.PostMapping;
+import dk.petlatkea.simplerest.framework.annotations.*;
+import dk.petlatkea.simplerest.framework.json.JSONDeserializer;
 import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A GenericController handles the actual HTTP communication, but requires an implementation
@@ -22,7 +22,12 @@ import java.util.Map;
  * and calls the RequestHandler-method (with a RequestObject and ResponseObject)
  * when a match is found.
  *
- * This allows for very "Express-like" controllers with methods that receives (req, res)
+ * The routes are now registered with @GetMapping annotations, and this GenericController
+ * builds its own RequestHandler-method for each one, effectively wrapping the controller
+ * method in something that automatically serializes and deserializes JSON, as well as
+ * filling in @PathVariable and @RequestBody parameters
+ *
+ * This allows for very "Spring Boot-like" controllers with annotated methods
  *
  */
 public class GenericController implements HttpHandler {
@@ -41,68 +46,131 @@ public class GenericController implements HttpHandler {
   }
 
   private void registerRouteAnnotations(Controller controller) {
+
+    System.out.println("Scanning controller: " + controller.getClass().getSimpleName());
+
     // Get all methods from the controller
-    // For each method - check if it has a GetMapping annotation
-    // If it does - register the route
+    // For each method - check if it has a Get-, Post- or DeleteMapping annotation
+    // If it does - create a handler method and register it with the route
     for(Method method : controller.getClass().getDeclaredMethods()) {
-      if(method.isAnnotationPresent(GetMapping.class)) {
-        GetMapping annotation = method.getAnnotation(GetMapping.class);
 
-        String path = annotation.value();
-        if(path == null ) {
-          path = basePath;
+      System.out.println("- scanning method: " + method.getName());
+
+      String httpMethod = null;
+      String httpUri = null;
+      Annotation requestMapping = null;
+
+      // Check the annotation(s) on this method
+      // - if it has GetMapping, PostMapping or DeleteMapping - it is a route
+      // - store the http-method and the annotation itself (for details about path)
+      Annotation[] methodAnnitations = method.getAnnotations();
+      for (Annotation annotation : methodAnnitations) {
+        // NOTE: A method should have only one of these ...
+        if (annotation instanceof GetMapping anno) {
+          httpMethod = "GET";
+          httpUri = anno.value();
+          requestMapping = annotation;
+        } else if (annotation instanceof PostMapping anno) {
+          httpMethod = "POST";
+          httpUri = anno.value();
+          requestMapping = annotation;
+        } else if (annotation instanceof DeleteMapping anno) {
+          httpMethod = "DELETE";
+          httpUri = anno.value();
+          requestMapping = annotation;
+        }
+      }
+
+      // We are only interested in methods that HAVE a request mapping of some sort
+      if (requestMapping != null) {
+
+        // Check the path - if none is present, use the basePath of the controller
+        if (httpUri == null) {
+          httpUri = basePath;
         }
 
-        registerRoute("GET", path, (req, res) -> {
+        // Check parameters - and build a ParameterHelper array
+        Parameter[] parameters = method.getParameters();
+        ParameterHelper paramHelpers[] = new ParameterHelper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+          int index = i;
+          Parameter parameter = parameters[i];
+          Class type = parameter.getType();
+          String name = parameter.getName();
+          ParameterHelper.Source source = null;
+
+          // There should be only one annotation on each parameter - no more, no less
+          // but just in case, we loop through all possibilities
+          for (Annotation parameterAnnotation : parameter.getAnnotations()) {
+            // if parameterAnnotation is a pathvariable
+            if (parameterAnnotation instanceof PathVariable) {
+              source = ParameterHelper.Source.PATH_VARIABLE;
+            } else if (parameterAnnotation instanceof RequestBody) {
+              source = ParameterHelper.Source.REQUEST_BODY;
+            }
+          }
+
+          // Now we know the name, type and source of this parameter -
+          // - store it for use when the method is called
+          paramHelpers[i] = new ParameterHelper(index, type, name, source);
+        }
+
+        // Now we can register a route with a newly created handler function
+        registerRoute(httpMethod, httpUri, (req, res) -> {
+
           try {
-            // Rather than invoke a method that takes a req and res, we want to invoke a plain method
-            // and take whatever it returns, convert to json, and send as response
+            // Prepare to invoke the method we are analysing
+            // But first build an array of args to that method
+            Object[] args = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+              // Set a value for each parameter - get them from the request object
+              Object value = null;
+              // if it is a pathvariable - simply get that path variable
+              if (paramHelpers[i].getSource() == ParameterHelper.Source.PATH_VARIABLE) {
+                // TODO: Use name, rather than hardcoded to id.
+                value = req.getPathVariable_id();
+              }
+              // If it is the requestbody, deserialize the json into the appropriate object
+              if (paramHelpers[i].getSource() == ParameterHelper.Source.REQUEST_BODY) {
+                String json = req.getJsonBody();
+                value = JSONDeserializer.fromJSON(paramHelpers[i].getType(), json);
+              }
+              // Put the value into the argument array
+              args[i] = value;
+            }
 
-            Object object = method.invoke(controller);
+            // Invoke the method and maybe receive a return object
+            Object object = method.invoke(controller, args);
 
-            // if object isn't null, serialise
-            String json = JSONSerializer.toJSON(object);
-            res.sendJson(json);
+            // Now, this is our rules - hardcoded into the controller:
+            // * if the object is null:
+            // - - ?don't return anything?
+            // * if the object is an empty Optional:
+            // - - respond with 404 NOT_FOUND
+            // * if the object is an Optional with something
+            // - - serialize the something to json, and return that
+            // * if the object is anything else:
+            // - - serialize the object, and return it
+
+            if (object instanceof Optional<?> optional) {
+              if (optional.isEmpty()) {
+                res.sendNotFound();
+              } else {
+                String jsonResponse = JSONSerializer.toJSON(optional.get());
+                res.sendJson(jsonResponse);
+              }
+            } else {
+              res.sendJson((JSONSerializer.toJSON(object)));
+            }
 
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
-        });
 
-      } else if(method.isAnnotationPresent(PostMapping.class)) {
-        PostMapping annotation = method.getAnnotation(PostMapping.class);
-        String path = annotation.value();
-        if(path == null ) {
-          path = basePath;
-        }
-
-        registerRoute("POST", path, (req, res) -> {
-          try {
-            method.invoke(controller,req,res);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        });
-
-      } else if(method.isAnnotationPresent(DeleteMapping.class)) {
-        DeleteMapping annotation = method.getAnnotation(DeleteMapping.class);
-
-        String path = annotation.value();
-        if(path == null ) {
-          path = basePath;
-        }
-
-        registerRoute("DELETE", path, (req, res) -> {
-          try {
-            method.invoke(controller,req,res);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
         });
 
       }
     }
-
 
   }
 
