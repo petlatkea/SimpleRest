@@ -29,13 +29,11 @@ multiple applications. I.e. classes that would have to be copied into a new REST
    It wraps the StudentController in a SimpleController, that handles all HTTP requests within a large if-else structure.
    The SimpleController also handles all JSON conversion, and only understands Student objects.
    
-2. ```GenericRest``` - Something like Express ...
+2. ```GenericRest``` - Something like Express.
 
-  This application adds Course objects as well as Student objects, and uses a ```GenericController``` that wraps a ControllerWrapper, that wraps the actual Controller.
-  The ControllerWrapper implements the ```Controller``` interface, and registers routes that the GenericController should handle - but
-  the ControllerWrapper also supplies individual handler methods, all implementing ```RequestHandler``` that receives a ```RequestObject``` 
-  and a ```ResponseObject```. 
-  All JSON conversion is done by each ControllerWrapper - each one hardcoded to its own entity-type, Student or Course.
+   This application adds Course objects as well as Student objects, and uses a ```GenericController``` that wraps a ControllerWrapper, that wraps the actual Controller.
+   The ControllerWrapper implements the ```Controller``` interface, and registers routes that the GenericController should handle - but the ControllerWrapper also supplies individual handler methods, all implementing ```RequestHandler``` that receives a ```RequestObject``` and a ```ResponseObject```. 
+   All JSON conversion is done by each ControllerWrapper - each one hardcoded to its own entity-type, Student or Course.
   
 3. ```JSONhandling``` - Dynamic JSON de+serializing-
 
