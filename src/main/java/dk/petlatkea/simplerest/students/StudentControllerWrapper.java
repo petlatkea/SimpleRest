@@ -1,6 +1,5 @@
 package dk.petlatkea.simplerest.students;
 
-import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.annotations.*;
 
 import java.util.List;
@@ -12,17 +11,12 @@ import java.util.Optional;
  * But as we now use @Annotations to register routes, and the controller doesn't need to handle request and response itself,
  * this class should be replaced by the actual controller in the next version
  */
-public class StudentControllerWrapper implements Controller {
+public class StudentControllerWrapper {
 
   private final StudentController studentController;
 
   public StudentControllerWrapper(StudentController studentController) {
     this.studentController = studentController;
-  }
-
-  @Override
-  public String getBasePath() {
-    return "/students";
   }
 
   // Request handlers - wraps the StudentController methods

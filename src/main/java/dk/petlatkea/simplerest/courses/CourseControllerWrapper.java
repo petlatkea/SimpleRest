@@ -1,6 +1,5 @@
 package dk.petlatkea.simplerest.courses;
 
-import dk.petlatkea.simplerest.framework.Controller;
 import dk.petlatkea.simplerest.framework.annotations.*;
 
 import java.util.List;
@@ -13,17 +12,12 @@ import java.util.Optional;
  * this class should be replaced by the actual controller in the next version
  *
  */
-public class CourseControllerWrapper implements Controller {
+public class CourseControllerWrapper {
 
   private final CourseController courseController;
 
   public CourseControllerWrapper(CourseController courseController) {
     this.courseController = courseController;
-  }
-
-  @Override
-  public String getBasePath() {
-    return "/courses";
   }
 
   @GetMapping("/courses")

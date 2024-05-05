@@ -33,11 +33,9 @@ import java.util.Optional;
 public class GenericController implements HttpHandler {
 
   private final Map<String, RequestHandler> routes = new HashMap<>();
-  private String basePath;
+  private String basePath = "/"; // Default basePath for any controller is / - this is usually overwritten by routes
 
-  public GenericController(Controller controller) {
-    this.basePath = controller.getBasePath();
-
+  public GenericController(Object controller) {
     registerRouteAnnotations(controller);
   }
 
@@ -45,7 +43,7 @@ public class GenericController implements HttpHandler {
     routes.put(method.toUpperCase() + path, handler);
   }
 
-  private void registerRouteAnnotations(Controller controller) {
+  private void registerRouteAnnotations(Object controller) {
 
     System.out.println("Scanning controller: " + controller.getClass().getSimpleName());
 
@@ -87,6 +85,17 @@ public class GenericController implements HttpHandler {
         // Check the path - if none is present, use the basePath of the controller
         if (httpUri == null) {
           httpUri = basePath;
+        }
+
+        // Check if the basePath have been improved - and take it from the latest route
+        if( basePath.length() < httpUri.length() ) {
+          // find the suggested basePath from latest httpUri - the part before the second /
+          int secondSlash = httpUri.indexOf('/',1);
+          String suggestedBasePath = httpUri;
+          if(secondSlash != -1) {
+            suggestedBasePath = suggestedBasePath.substring(0,secondSlash);
+          }
+          basePath = suggestedBasePath;
         }
 
         // Check parameters - and build a ParameterHelper array
