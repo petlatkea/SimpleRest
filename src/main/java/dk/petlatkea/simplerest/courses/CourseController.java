@@ -1,5 +1,7 @@
 package dk.petlatkea.simplerest.courses;
 
+import dk.petlatkea.simplerest.framework.annotations.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,19 +13,23 @@ public class CourseController {
     this.courseRepository = courseRepository;
   }
 
+  @GetMapping("/courses")
   public List<Course> getCourses() {
     return courseRepository.findAll();
   }
 
-  public Optional<Course> getCourse(int id) {
+  @GetMapping("/courses/{id}")
+  public Optional<Course> getCourse(@PathVariable int id) {
     return Optional.ofNullable(courseRepository.findById(id));
   }
 
-  public Course createCourse(Course course) {
+  @PostMapping("/courses")
+  public Course createCourse(@RequestBody Course course) {
     return courseRepository.save(course);
   }
 
-  public Optional<Course> deleteCourse(int id) {
+  @DeleteMapping("/courses/{id}")
+  public Optional<Course> deleteCourse(@PathVariable int id) {
     return Optional.ofNullable(courseRepository.deleteById(id));
   }
 

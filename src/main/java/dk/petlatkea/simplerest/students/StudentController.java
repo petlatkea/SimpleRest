@@ -1,5 +1,7 @@
 package dk.petlatkea.simplerest.students;
 
+import dk.petlatkea.simplerest.framework.annotations.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,19 +13,23 @@ public class StudentController {
     this.studentRepository = studentRepository;
   }
 
+  @GetMapping("/students")
   public List<Student> getStudents() {
     return studentRepository.findAll();
   }
 
-  public Optional<Student> getStudent(int id) {
+  @GetMapping("/students/{id}")
+  public Optional<Student> getStudent(@PathVariable int id) {
     return Optional.ofNullable(studentRepository.findById(id));
   }
 
-  public Student createStudent(Student student) {
+  @PostMapping("/students")
+  public Student createStudent(@RequestBody Student student) {
     return studentRepository.save(student);
   }
 
-  public Optional<Student> deleteStudent(int id) {
+  @DeleteMapping("/students/{id}")
+  public Optional<Student> deleteStudent(@PathVariable int id) {
     return Optional.ofNullable(studentRepository.deleteById(id));
   }
 
