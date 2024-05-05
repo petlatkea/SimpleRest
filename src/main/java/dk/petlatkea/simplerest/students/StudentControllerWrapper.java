@@ -35,11 +35,17 @@ public class StudentControllerWrapper implements Controller {
   // Request handlers - wraps the StudentController methods
 
   @GetMapping("/students")
+  public List<Student> getStudents() {
+    return studentController.getStudents();
+  }
+  /*
   public void getStudents(RequestObject req, ResponseObject res) {
     List<Student> students = studentController.getStudents();
     String json = JSONSerializer.toJSON(students);
     res.sendJson(json);
   }
+
+   */
 
   @GetMapping("/students/{id}")
   public void getStudent(RequestObject req, ResponseObject res) {

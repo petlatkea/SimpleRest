@@ -5,10 +5,13 @@ import com.sun.net.httpserver.HttpHandler;
 import dk.petlatkea.simplerest.framework.annotations.DeleteMapping;
 import dk.petlatkea.simplerest.framework.annotations.GetMapping;
 import dk.petlatkea.simplerest.framework.annotations.PostMapping;
+import dk.petlatkea.simplerest.framework.json.JSONSerializer;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +47,7 @@ public class GenericController implements HttpHandler {
     for(Method method : controller.getClass().getDeclaredMethods()) {
       if(method.isAnnotationPresent(GetMapping.class)) {
         GetMapping annotation = method.getAnnotation(GetMapping.class);
+
         String path = annotation.value();
         if(path == null ) {
           path = basePath;
@@ -51,7 +55,15 @@ public class GenericController implements HttpHandler {
 
         registerRoute("GET", path, (req, res) -> {
           try {
-            method.invoke(controller,req,res);
+            // Rather than invoke a method that takes a req and res, we want to invoke a plain method
+            // and take whatever it returns, convert to json, and send as response
+
+            Object object = method.invoke(controller);
+
+            // if object isn't null, serialise
+            String json = JSONSerializer.toJSON(object);
+            res.sendJson(json);
+
           } catch (Exception e) {
             throw new RuntimeException(e);
           }

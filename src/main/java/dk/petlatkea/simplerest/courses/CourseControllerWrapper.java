@@ -35,10 +35,8 @@ public class CourseControllerWrapper implements Controller {
   }
 
   @GetMapping("/courses")
-  public void getCourses(RequestObject req, ResponseObject res) {
-    List<Course> courses = courseController.getCourses();
-    String json = JSONSerializer.toJSON(courses);
-    res.sendJson(json);
+  public List<Course> getCourses() {
+    return courseController.getCourses();
   }
 
   @GetMapping("/courses/{id}")
