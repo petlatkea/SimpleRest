@@ -2,11 +2,13 @@ package dk.petlatkea.simplerest.config;
 
 import dk.petlatkea.simplerest.courses.Course;
 import dk.petlatkea.simplerest.courses.CourseRepository;
+import dk.petlatkea.simplerest.framework.annotations.Component;
 import dk.petlatkea.simplerest.students.Student;
 import dk.petlatkea.simplerest.students.StudentRepository;
 
 import java.time.LocalDate;
 
+@Component
 public class InitData {
 
   private final StudentRepository studentRepository;

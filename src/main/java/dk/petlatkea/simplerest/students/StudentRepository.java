@@ -1,7 +1,10 @@
 package dk.petlatkea.simplerest.students;
 
+import dk.petlatkea.simplerest.framework.annotations.Repository;
+
 import java.util.*;
 
+@Repository
 public class StudentRepository {
 
   private final HashMap<Integer, Student> database = new HashMap<>();

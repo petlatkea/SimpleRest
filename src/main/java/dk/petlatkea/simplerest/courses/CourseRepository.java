@@ -1,11 +1,12 @@
 package dk.petlatkea.simplerest.courses;
 
-import dk.petlatkea.simplerest.courses.Course;
+import dk.petlatkea.simplerest.framework.annotations.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Repository
 public class CourseRepository {
 
   private final HashMap<Integer, Course> database = new HashMap<>();
