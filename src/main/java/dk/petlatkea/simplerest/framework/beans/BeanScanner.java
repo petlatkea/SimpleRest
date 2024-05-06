@@ -1,4 +1,4 @@
-package dk.petlatkea.simplerest.framework.scanner;
+package dk.petlatkea.simplerest.framework.beans;
 
 import dk.petlatkea.simplerest.framework.annotations.Component;
 import dk.petlatkea.simplerest.framework.annotations.Controller;
