@@ -17,10 +17,12 @@ public class ProjectApplication {
 
     BeanScanner beanScanner = new BeanScanner(ProjectApplication.class);
     // find controllers and print them - other than that, don't really care ...
-    System.out.println("Controllers:");
-    for (Object controller : beanScanner.getBeanClasses(Controller.class)) {
-      System.out.println(controller);
+    System.out.println("Beans:");
+    for (Object bean : beanScanner.getAllBeans()) {
+      System.out.println(bean);
     }
+
+    System.out.println("---------");
 
     // Create instances to inject later
     StudentRepository studentRepository = new StudentRepository();

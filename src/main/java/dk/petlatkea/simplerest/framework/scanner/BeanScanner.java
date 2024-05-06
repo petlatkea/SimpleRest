@@ -9,6 +9,8 @@ import java.util.*;
 public class BeanScanner {
   Class applicationRoot;
 
+  // a list of all beans found - be able to get all types, all classes, any class, all classesOfType
+
   // key is type: one of the annotation-classes
   // value is a list of classes that have that annotation
   Map<Class,List<Class>> beanClasses = new HashMap<>();
@@ -20,11 +22,19 @@ public class BeanScanner {
 
   /**
    * Returns a list of classes that have the given annotation
-   * @param beanclass the annotation class to look for
+   * @param beantype the annotation class to look for
    * @return a list of classes that have the given annotation
    */
-  public List<Class> getBeanClasses(Class beanclass) {
-    return beanClasses.get(beanclass);
+  public List<Class> getBeansOfType(Class beantype) {
+    return beanClasses.get(beantype);
+  }
+
+  public Set<Class> getAllBeans() {
+    Set<Class> allBeans = new HashSet<>();
+    for(List list : beanClasses.values()) {
+      allBeans.addAll(list);
+    }
+    return allBeans;
   }
 
   private List<Class<?>> getClassesInSamePackageAs(Class application) throws IOException {
@@ -75,22 +85,27 @@ public class BeanScanner {
       // check if the classes have the @Controller annotation
       for (Class<?> c : classes) {
 
-        if (c.isAnnotationPresent(Controller.class)) {
-          // get list of controllers from the map
-          List<Class> controllers = beanClasses.get(Controller.class);
-          // if the list is null, create a new list
-          if (controllers == null) {
-            controllers = new ArrayList<>();
-            beanClasses.put(Controller.class, controllers);
-          }
-          // add this class to the list
-          controllers.add(c);
-        }
+        checkForAnnotation(c, Controller.class);
+
 
       }
 
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void checkForAnnotation(Class<?> c, Class beanType) {
+    if (c.isAnnotationPresent(beanType)) {
+      // get list of controllers from the map
+      List<Class> beansOfThisType = beanClasses.get(beanType);
+      // if the list is null, create a new list
+      if (beansOfThisType == null) {
+        beansOfThisType = new ArrayList<>();
+        beanClasses.put(beanType, beansOfThisType);
+      }
+      // add this class to the list
+      beansOfThisType.add(c);
     }
   }
 
