@@ -50,7 +50,7 @@ public class BeanInstantiator {
     // check if there is an instance of this class
     Object instance = beanInstances.get(beanClass);
     if(instance == null) {
-      System.out.println("Create new instance of " + beanClass);
+      //System.out.println("Create new instance of " + beanClass);
       // if there isn't - try to create one!
       Constructor[] constructors = beanClass.getDeclaredConstructors();
       if(constructors.length>1) {
@@ -63,13 +63,9 @@ public class BeanInstantiator {
         if(parameters.length == 0) {
           instance = constructor.newInstance();
           beanInstances.put(beanClass, instance);
-          System.out.println("Instantiated bean with no parameters");
+        //  System.out.println("Instantiated bean with no parameters");
         } else {
-          System.out.print("Expected parameters: " + Arrays.toString(parameters));
-          for(Parameter parameter : parameters) {
-            System.out.print(parameter.getType().getName() + " " + parameter.getName() + ", ");
-          }
-          System.out.println();
+        //  System.out.println("Expected parameters: " + Arrays.toString(parameters));
 
           // create an array for all the arguments necessary for the parameters
           Object[] arguments = new Object[parameters.length];
@@ -82,10 +78,10 @@ public class BeanInstantiator {
           // and create an instance with the arguments
           instance = constructor.newInstance(arguments);
           beanInstances.put(beanClass, instance);
-          System.out.println("Instantiated bean with injected beans!");
+        //  System.out.println("Instantiated bean with injected beans!");
         }
       }
-      System.out.println("==================");
+    //  System.out.println("==================");
     }
 
     return instance;
