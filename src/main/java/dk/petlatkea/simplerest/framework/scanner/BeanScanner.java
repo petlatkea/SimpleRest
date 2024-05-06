@@ -1,17 +1,30 @@
 package dk.petlatkea.simplerest.framework.scanner;
 
+import dk.petlatkea.simplerest.framework.annotations.Controller;
+
 import java.io.*;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class BeanScanner {
   Class applicationRoot;
 
+  // key is type: one of the annotation-classes
+  // value is a list of classes that have that annotation
+  Map<Class,List<Class>> beanClasses = new HashMap<>();
+
   public BeanScanner(Class applicationClass) {
       this.applicationRoot = applicationClass;
       scanForBeans();
+  }
+
+  /**
+   * Returns a list of classes that have the given annotation
+   * @param beanclass the annotation class to look for
+   * @return a list of classes that have the given annotation
+   */
+  public List<Class> getBeanClasses(Class beanclass) {
+    return beanClasses.get(beanclass);
   }
 
   private List<Class<?>> getClassesInSamePackageAs(Class application) throws IOException {
@@ -54,32 +67,31 @@ public class BeanScanner {
     return classes;
   }
 
-  public void scanForBeans() {
+  private void scanForBeans() {
     try {
       // find all classes in the applicationRoot package
       List<Class<?>> classes = getClassesInSamePackageAs(applicationRoot);
 
+      // check if the classes have the @Controller annotation
       for (Class<?> c : classes) {
-        System.out.println(c.getName());
+
+        if (c.isAnnotationPresent(Controller.class)) {
+          // get list of controllers from the map
+          List<Class> controllers = beanClasses.get(Controller.class);
+          // if the list is null, create a new list
+          if (controllers == null) {
+            controllers = new ArrayList<>();
+            beanClasses.put(Controller.class, controllers);
+          }
+          // add this class to the list
+          controllers.add(c);
+        }
+
       }
 
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-/*
-    Package[] packages = classLoader.getDefinedPackages();
-    for (Package p : packages) {
-      System.out.println(p.getName());
-    }
+  }
 
-      System.out.println("-------------------");
-
-      InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("dk/petlatkea/simplerest");
-      BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-      reader.lines().forEach(System.out::println);
-
-//      ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-//      classLoader.
-*/
-    }
 }

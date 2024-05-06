@@ -5,6 +5,8 @@ import dk.petlatkea.simplerest.courses.CourseController;
 import dk.petlatkea.simplerest.courses.CourseRepository;
 import dk.petlatkea.simplerest.framework.GenericController;
 import dk.petlatkea.simplerest.framework.GenericServer;
+import dk.petlatkea.simplerest.framework.annotations.Controller;
+import dk.petlatkea.simplerest.framework.scanner.BeanScanner;
 import dk.petlatkea.simplerest.students.StudentController;
 import dk.petlatkea.simplerest.students.StudentRepository;
 
@@ -12,6 +14,14 @@ import java.io.IOException;
 
 public class ProjectApplication {
   public static void main(String[] args) throws IOException {
+
+    BeanScanner beanScanner = new BeanScanner(ProjectApplication.class);
+    // find controllers and print them - other than that, don't really care ...
+    System.out.println("Controllers:");
+    for (Object controller : beanScanner.getBeanClasses(Controller.class)) {
+      System.out.println(controller);
+    }
+
     // Create instances to inject later
     StudentRepository studentRepository = new StudentRepository();
     StudentController studentController = new StudentController(studentRepository);
