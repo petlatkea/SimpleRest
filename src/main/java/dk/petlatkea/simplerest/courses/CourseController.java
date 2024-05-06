@@ -5,6 +5,7 @@ import dk.petlatkea.simplerest.framework.annotations.*;
 import java.util.List;
 import java.util.Optional;
 
+@Controller
 public class CourseController {
 
   private final CourseRepository courseRepository;
