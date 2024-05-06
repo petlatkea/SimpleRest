@@ -31,8 +31,11 @@ multiple applications. I.e. classes that would have to be copied into a new REST
    
 2. ```GenericRest``` - Something like Express.
 
-   This application adds Course objects as well as Student objects, and uses a ```GenericController``` that wraps a ControllerWrapper, that wraps the actual Controller.
-   The ControllerWrapper implements the ```Controller``` interface, and registers routes that the GenericController should handle - but the ControllerWrapper also supplies individual handler methods, all implementing ```RequestHandler``` that receives a ```RequestObject``` and a ```ResponseObject```. 
+   This application adds Course objects as well as Student objects, and uses a ```GenericController``` that wraps a 
+   ControllerWrapper, that wraps the actual Controller.
+   The ControllerWrapper implements the ```Controller``` interface, and registers routes that the GenericController should 
+   handle - but the ControllerWrapper also supplies individual handler methods, all implementing ```RequestHandler``` that 
+   receives a ```RequestObject``` and a ```ResponseObject```. 
    All JSON conversion is done by each ControllerWrapper - each one hardcoded to its own entity-type, Student or Course.
   
 3. ```JSONhandling``` - Dynamic JSON de+serializing-
@@ -54,7 +57,15 @@ multiple applications. I.e. classes that would have to be copied into a new REST
    A controller now looks more or less like a Spring controller - no special interfaces needed.
    The Generic Controller is still what does the actual work, but only the ProjectApplication needs to know.
 
+6. ```BeanScanner``` - @Component annotations and dependency injection
 
+   This is more or less the 'final' version - atleast the one that looks a lot like a Spring Boot project on the surface.
+   The beans package handles scanning for classes in the package-hiearchy below the application-class, and identifies any
+   classes annotated with @Controller, @Repository or @Component. It then instantiates instances of those classes, for 
+   each one taking care to first instantiate its dependencies, and give them as arguments to the constructor.
+   
+   When all is taken care of, the only thing the ProjectApplication has to do, is call a static run-method on the 
+   SprungApplication with a reference to its own class. And there all the magic happens!
 
 
 
